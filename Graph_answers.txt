@@ -1,0 +1,1247 @@
+Bridge edge in agraph
+strongly connected component
+
+
+vector <int> bfs(vector<int> g[], int N) {
+    vector <bool> vis (N, false);
+    int s = 0;
+    vis[s] = true; // Initially mark source vertex as visited(true)
+    vector <int> res;
+    queue<int> q;
+    q.push(s); // Push the source vertex to queue
+
+    while (!q.empty()) // Till queue is not empty
+    {
+        int t = q.front();
+        res.push_back (t);
+
+        q.pop(); // Pop the queue front
+
+        for (int v :
+             g[t]) // Traverse through all the connected components of front
+        {
+            if (!vis[v]) { // If they are not visited, mark them visited and add
+                           // to queue
+                vis[v] = true;
+                q.push(v);
+            }
+        }
+    }
+    return res;
+}
+-----------------------------------------DFS OF A GRAPH---
+void DFSUtil (int i, vector <int> g[], int N, bool vis[], vector <int> &res)
+{
+    if (vis[i]) return;
+    vis[i] = true;
+    res.push_back (i);
+    
+    for (int j : g[i])
+    {
+        if (!vis[j]) DFSUtil (j, g, N, vis, res);
+    }
+}
+
+vector <int> dfs(vector<int> g[], int N)
+{
+    bool vis[N];
+    memset (vis, false, sizeof (vis));
+    
+    vector <int> res;
+    for (int i = 0;i < N; i++)
+    {
+        if (!vis[i])
+        {
+            DFSUtil (i, g, N, vis, res);
+        }
+    }
+    
+    return res;
+}
+----------------------Number of islands-------------
+#include <bits/stdc++.h>
+using namespace std;
+
+int findIslands(vector<int> A[], int N, int M);
+
+int main() {
+
+    int T;
+    cin >> T;
+    while (T--) {
+        int N, M;
+        cin >> N >> M;
+        vector<int> A[N];
+        for (int i = 0; i < N; i++) {
+            vector<int> temp(M);
+            A[i] = temp;
+            for (int j = 0; j < M; j++) {
+                cin >> A[i][j];
+            }
+        }
+        cout << findIslands(A, N, M) << endl;
+    }
+    return 0;
+}// } Driver Code Ends
+
+
+/*you are required to complete this method*/
+
+/*  Function to find number of islands in the given graph
+*   A[]: input array
+*   N, M: Row and column of given matrix
+*/
+int isSafe(vector<int> M[], int row, int col, vector<vector<bool>> &visited,
+           int ROW, int COL) {
+    // Check boundary conditions for i and j. Also check if node is not already
+    // visited and is currently 1.
+    return (row >= 0) && (row < ROW) && (col >= 0) && (col < COL) &&
+           (M[row][col] && !visited[row][col]);
+}
+
+void dfs(vector<int> A[], int i, int j, vector<vector<bool>> &vis, int N,
+         int M) {
+
+    int row[] = {-1, -1, -1, 0,
+                 0,  1,  1,  1}; // Check for all 8 neighbours of i and j
+    int col[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+    vis[i][j] = true;
+
+    for (int k = 0; k < 8; k++) // Checking for all 8 neighbouring sides
+    {
+        if ((i + row[k] < N && j + col[k] < M) &&
+            (isSafe(A, i + row[k], j + col[k], vis, N,
+                    M))) { // checking if node is not visited
+            dfs(A, i + row[k], j + col[k], vis, N,
+                M); // and A[i+row[k]][j+col[k]] is 1, call dfs again
+                    // exit(0);
+        }
+    }
+}
+
+int findIslands(vector<int> A[], int N, int M) {
+    vector<vector<bool>> visited(
+        N,
+        vector<bool>(
+            M, false)); // Created a visited array intially all false(unvisited)
+    int count = 0;      // Number of different islands
+    for (int i = 0; i < N; i++) // Loop through every point in the matrix
+    {
+        for (int j = 0; j < M; j++) {
+            if (!visited[i][j] and A[i][j]) { // If point is not already visited
+                                              // and A[i][j] is an island
+                dfs(A, i, j, visited, N, M);  // Call dfs
+                // exit(0);
+                count += 1;
+            }
+        }
+    }
+    return count;
+}
+--------------------------Detect cycle in a undirected graph---------
+
+bool DFSUtil(vector<int> *adj, int u, vector<bool> &visited, int parent)
+{
+   visited[u]=true;                 // Mark the node as visited
+   for(auto v: adj[u])              // Run for all the adjacent nodes of that vertex 
+   {
+       if(!visited[v])              // If vertex is not visited
+       {
+           if(DFSUtil(adj, v, visited, u))  // Run DFS for the adjacent vertex
+            return true;                    
+       }
+       else if(v!=parent)                   
+            return true;            
+   }
+   return false;
+}
+
+bool isCyclic(vector<int> adj[], int V)
+{
+   vector<bool> visited(V, false);  // Created a visited vector intially all false(unvisited)
+   for(int u=0;u<V;u++)             // Traversing through every node
+   {
+       if(!visited[u])              // If vertex is not already visited
+          if(DFSUtil(adj,u,visited,-1)) // call DFS on that vertex
+            return true;                // If function contains cycle return true
+   }
+   return false;                        // Else return false
+}
+
+------------------Detect cycle in a directed graph-------
+
+
+bool dfs(int u, vector<char> &colour, vector<int> adj[])
+{
+    if(colour[u]=='w')          // If colour is intially 'w' change the colour to 'g'
+    {
+        colour[u]='g';
+        
+       // bool res;
+        for(int v : adj[u])     // Traverse for its neighbouring vertices
+        {
+            if(dfs(v,colour,adj)==true)
+                return true;
+        }
+        colour[u]='b';          // After successful traversal mark it as 'b'
+        return false;
+    }
+    if(colour[u]=='g')          // If node colour come as 'g' again it is repeated, return true.
+        return true;                                                                                                            
+}
+
+bool isCyclic(int V, vector<int> adj[])
+{
+    vector<char> colour(V,'w');         // Mark the initial node as 'w'
+    for(int i=0;i<V;i++)
+    {
+        if(colour[i]=='w')              // Intially the node is 'w'
+        {
+            if(dfs(i,colour, adj))      // If node is repeated again return true from dfs
+                return true;
+        }
+    }
+    return false;
+}
+
+-------------------------------------Find whether path exist------\
+
+using namespace std;
+int A[20][20];
+int x[] = {1,-1,0,0};
+int y[] = {0,0,1,-1};
+ bool vis[20][20];
+int n;
+bool valid(int xx,int yy){
+    return xx>=0 and yy>=0 and xx<n and yy<n and !vis[xx][yy] and  A[xx][yy]==3;
+}
+int main()
+ {
+     int t;
+      cin>>t;
+      while(t--)
+      {
+        cin>>n;
+      pair<int,int> s;
+      pair<int,int> d;
+      
+      for(int i=0;i<n;i++){
+      for(int j=0;j<n;j++){
+      cin>>A[i][j];
+      if(A[i][j]==1)
+      s = {i,j};
+      else if(A[i][j]==2)
+      d = {i,j};
+      }
+      }
+    bool ans =0;
+    for(int i=0;i<20;i++)
+    {
+        for(int j=0;j<20;j++)
+        {
+            vis[i][j] = false;
+        }
+    }
+    queue<pair<int,int> > q;
+      q.push(s);
+      while(!q.empty())
+      {
+          pair<int,int> tt = q.front();
+          vis[tt.first][tt.second]=true;
+          q.pop();
+          for(int i=0;i<4;i++)
+          {
+              if(A[tt.first+x[i]][tt.second+y[i]]==2)
+            {
+              ans = 1;
+              break;
+            }
+              if(valid(tt.first+x[i],tt.second+y[i])){
+                q.push({tt.first+x[i],tt.second+y[i]});
+              }
+          }
+          if(ans)
+          break;
+        
+      }
+      cout<<ans<<endl;
+      
+      }
+    return 0;
+}
+---------------------------Topological sort---------------
+
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+int *topoSort(int N, vector<int> adj[]);
+
+/*  Function to check if elements returned by user
+*   contains the elements in topological sorted form
+*   V: number of vertices
+*   *res: array containing elements in topological sorted form
+*   adj[]: graph input
+*/
+bool check(int V, int res[], vector<int> adj[]) {
+    vector<int> map(V, -1);
+    for (int i = 0; i < V; i++) {
+        map[res[i]] = i;
+    }
+    for (int i = 0; i < V; i++) {
+        for (int v : adj[i]) {
+            if (map[i] > map[v]) return false;
+        }
+    }
+    return true;
+}
+------------------Level of nodes-------------------------
+
+
+
+int Graph::levels( int x, int in){
+    
+    int level[V+1];             // Make a level array to store every node level from x
+    bool visited[V+1];          // Make a visited array to mark whether the node is visited or not
+    
+    memset(level, 0, sizeof(level));
+    memset(visited, false, sizeof(visited));
+    
+    queue<int> q;   
+    q.push(x);                  // Push the current node x to queue
+    
+    visited[x] = true;          // Mark the node as visited
+    level[x] = 0;               // Mark the level of root node as 0
+    
+    while(!q.empty()){          // Apply BFS, while queue is not empty
+        x = q.front();          // Take q.front() in x
+        q.pop();                // Pop from queue
+        for(auto b : adj[x]){   // Traverse for each adjacent vertex 
+            if(!visited[b]){    // If the current adjacent vertex is not visited
+                q.push(b);      // Push the adjacent vertec to q
+                level[b] = level[x]+1;  // Increase the level of adjacent vertex 1 + level of its parent(current node)
+                visited[b] = true; // Mark the adjacent node as visited
+            }
+        }
+    }
+    
+     return level[in];      // Return level of the desired node.
+    
+}
+-----------------------FInd paths---------------------------
+
+
+
+ find paths between 2 nodes
+void countPathsUtil(list<int> *adj, int u, int d, vector<bool> &visited,
+                    int &pathCount) {
+    visited[u] = true; // Mark the current node as visited
+
+    if (u == d)
+        // If current node is equal to destination node increase the count
+        pathCount++;
+
+    else {
+        list<int>::iterator i;
+        for (i = adj[u].begin(); i != adj[u].end(); ++i)
+            // Traverse for all connected nodes
+            if (!visited[*i]) // If connected node is not visited
+                // Call the function for adjacent node
+                countPathsUtil(adj, *i, d, visited, pathCount);
+    }
+    visited[u] = false; // Mark the current node visited as false
+}
+
+int countPaths(list<int> adj[], int V, int s, int d) {
+    vector<bool> visited(V + 1, false);
+
+    int pathCount = 0;
+    // Call the function to calculate path from s to d
+    countPathsUtil(adj, s, d, visited, pathCount);
+
+    return pathCount;
+}
+------------------------------X-total shapes--------------
+
+
+,inusing namespace std;
+
+void dfs(vector<string> &A, int x, int y){
+    if(x>=A.size()||A[x].length()<=y){
+        return ;
+    }
+	if(A[x][y]=='X'){
+		A[x][y]='O';
+		dfs(A,x+1,y);dfs(A,x,y+1);dfs(A,x-1,y);dfs(A,x,y-1);
+	}
+}
+
+int fun(vector<string> &A) {
+    int i,j,ans=0;
+	for(i=0;i<A.size();i++){
+		for(j=0;j<A[i].length();j++){
+			if(A[i][j]=='X'){
+				ans++;
+				dfs(A, i,j);
+			}
+		}
+	}
+	return ans;
+}
+
+
+int main(){
+	int t;
+	cin>>t;
+	while(t--){
+		int n;
+		cin>>n;
+		int m;
+		cin>>m;
+		vector<string> A;
+		for(int i=0;i<n;i++){
+			string S;
+			cin>>S;
+			A.push_back(S);
+		}
+		cout<<fun(A)<<"\n";
+	}
+}
+---------Distance of nearest cell having1------------------
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void print(vector<vector<int>> arr, int row, int col) {
+
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            cout << arr[i][j] << " ";
+        }
+    }
+    cout << "\n";
+}
+
+vector <vector <int> > nearest(vector<vector<int>> &arr, int row, int col);
+int main() {
+
+    int tc;
+    cin >> tc;
+    while (tc--) {
+        int row, col;
+        cin >> row >> col;
+
+        // Input matrix is represented using vectors of vectors
+        vector<vector<int>> graph(row, vector<int>(col, 0));
+
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                cin >> graph[i][j];
+            }
+        }
+
+        print (nearest(graph, row, col), row, col);
+    }
+
+    return 0;
+}
+// } Driver Code Ends
+
+
+/*  Function to find the distance of nearest cell having 1
+
+*   mat: The input matrix of 0s and 1s
+*   N, M: rows and cols in given matrix
+*   Return the resultant matrix of size (N x M) representing the nearest distance 1 from each cell
+*/
+vector <vector <int> > nearest(vector<vector<int>> &arr, int row, int col) {
+    vector<vector<int>> sol(row, vector<int>(col, 0));
+
+    vector<vector<int>> visited(row, vector<int>(col, 0));
+    queue<pair<int, int>> que;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            visited[i][j] = 0;
+            sol[i][j] = INT_MAX;
+            if (arr[i][j]) {
+                visited[i][j] = 1;
+                sol[i][j] = 0;
+                // insert all cells that contains 1 into the queue
+                que.push(make_pair(i, j));
+            }
+        }
+    }
+    // use bfs
+    while (!que.empty()) {
+        pair<int, int> p = que.front();
+        que.pop();
+        int x = p.first;
+        int y = p.second;
+        // check for the adjacent cells
+        if ((x > 0) && (!visited[x - 1][y])) {
+            sol[x - 1][y] = min(sol[x - 1][y], sol[x][y] + 1);
+            visited[x - 1][y] = 1;
+            que.push(make_pair(x - 1, y));
+        }
+        if ((x < (row - 1)) && (!visited[x + 1][y])) {
+            sol[x + 1][y] = min(sol[x + 1][y], sol[x][y] + 1);
+            visited[x + 1][y] = 1;
+            que.push(make_pair(x + 1, y));
+        }
+        if ((y > 0) && (!visited[x][y - 1])) {
+            sol[x][y - 1] = min(sol[x][y - 1], sol[x][y] + 1);
+            visited[x][y - 1] = 1;
+            que.push(make_pair(x, y - 1));
+        }
+        if ((y < (col - 1)) && (!visited[x][y + 1])) {
+            sol[x][y + 1] = min(sol[x][y + 1], sol[x][y] + 1);
+            visited[x][y + 1] = 1;
+            que.push(make_pair(x, y + 1));
+        }
+    }
+    return sol;
+    // print(sol, row, col);
+}
+----------------Mother vertex------------- ------
+
+
+#include <bits/stdc++.h>
+
+using namespace std;
+
+void print(vector<vector<int>> arr, int row, int col) {
+
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            cout << arr[i][j] << " ";
+        }
+    }
+    cout << "\n";
+}
+
+vector <vector <int> > nearest(vector<vector<int>> &arr, int row, int col);
+int main() {
+
+    int tc;
+    cin >> tc;
+    while (tc--) {
+        int row, col;
+        cin >> row >> col;
+
+        // Input matrix is represented using vectors of vectors
+        vector<vector<int>> graph(row, vector<int>(col, 0));
+
+        for (int i = 0; i < row; i++) {
+            for (int j = 0; j < col; j++) {
+                cin >> graph[i][j];
+            }
+        }
+
+        print (nearest(graph, row, col), row, col);
+    }
+
+    return 0;
+}
+// } Driver Code Ends
+
+
+/*  Function to find the distance of nearest cell having 1
+
+*   mat: The input matrix of 0s and 1s
+*   N, M: rows and cols in given matrix
+*   Return the resultant matrix of size (N x M) representing the nearest distance 1 from each cell
+*/
+vector <vector <int> > nearest(vector<vector<int>> &arr, int row, int col) {
+    vector<vector<int>> sol(row, vector<int>(col, 0));
+
+    vector<vector<int>> visited(row, vector<int>(col, 0));
+    queue<pair<int, int>> que;
+    for (int i = 0; i < row; i++) {
+        for (int j = 0; j < col; j++) {
+            visited[i][j] = 0;
+            sol[i][j] = INT_MAX;
+            if (arr[i][j]) {
+                visited[i][j] = 1;
+                sol[i][j] = 0;
+                // insert all cells that contains 1 into the queue
+                que.push(make_pair(i, j));
+            }
+        }
+    }
+    // use bfs
+    while (!que.empty()) {
+        pair<int, int> p = que.front();
+        que.pop();
+        int x = p.first;
+        int y = p.second;
+        // check for the adjacent cells
+        if ((x > 0) && (!visited[x - 1][y])) {
+            sol[x - 1][y] = min(sol[x - 1][y], sol[x][y] + 1);
+            visited[x - 1][y] = 1;
+            que.push(make_pair(x - 1, y));
+        }
+        if ((x < (row - 1)) && (!visited[x + 1][y])) {
+            sol[x + 1][y] = min(sol[x + 1][y], sol[x][y] + 1);
+            visited[x + 1][y] = 1;
+            que.push(make_pair(x + 1, y));
+        }
+        if ((y > 0) && (!visited[x][y - 1])) {
+            sol[x][y - 1] = min(sol[x][y - 1], sol[x][y] + 1);
+            visited[x][y - 1] = 1;
+            que.push(make_pair(x, y - 1));
+        }
+        if ((y < (col - 1)) && (!visited[x][y + 1])) {
+            sol[x][y + 1] = min(sol[x][y + 1], sol[x][y] + 1);
+            visited[x][y + 1] = 1;
+            que.push(make_pair(x, y + 1));
+        }
+    }
+    return sol;
+    // print(sol, row, col);
+}
+--------------------Unit area of largest region----------
+
+int c = 0;
+
+// check if {i, j} pair of indices are in the matrix
+bool safe(int i, int j, int n, int m, int g[SIZE][SIZE], bool vis[SIZE][SIZE])
+{
+    if(i<0 || j<0 || i>=n || j>=m) return 0;
+    return g[i][j] == 1 and !vis[i][j];
+}
+
+// all adjacent 8 directions
+static int x[] = {-1, -1, -1, 0, 0, 1, 1, 1};
+static int y[] = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+// utility function to find max area
+void findArea(int i, int j, int g[SIZE][SIZE], bool vis[SIZE][SIZE], int n, int m)
+{
+    vis[i][j] = true;
+    for (int ii = 0; ii < 8; ii++)
+    {
+        if (safe(i + x[ii], j + y[ii], n, m, g, vis))
+        {
+            c++;
+            findArea(i + x[ii], j + y[ii], g, vis, n, m);
+        }
+    }
+    return;
+}
+
+int findMaxArea(int n, int m, int g[SIZE][SIZE] )
+{
+    int ans = INT_MIN;
+    bool vis[SIZE][SIZE];
+    memset(vis, 0, sizeof(vis));
+
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < m; j++)
+        {
+            // if g[i][j] = 1 then start from this {i, j} pair
+            if ( g[i][j] && !vis[i][j] )
+            {
+                c = 1;
+                findArea(i, j, g, vis, n, m);
+                ans = max(ans, c);
+            }
+        }
+    }
+
+    return ans;
+}
+------------------ROtten Oranges-----------------------
+
+
+#include<stdio.h>
+#include<math.h>
+using namespace std;
+int R,C;
+
+bool isvalid(int i, int j)
+{
+    return (i >= 0 && j >= 0 && i < R && j < C);
+}
+ 
+struct ele {
+    int x, y;
+};
+ 
+bool isdelim(ele temp)
+{
+    return (temp.x == -1 && temp.y == -1);
+}
+ 
+bool checkall(int arr[][101])
+{
+    for (int i=0; i<R; i++)
+       for (int j=0; j<C; j++)
+          if (arr[i][j] == 1)
+             return true;
+    return false;
+}
+
+int rotOranges(int arr[][101])
+{
+
+    queue<ele> Q;
+    ele temp;
+    int ans = 0;
+    for (int i=0; i<R; i++)
+    {
+       for (int j=0; j<C; j++)
+       {
+            if (arr[i][j] == 2)
+            {
+                temp.x = i;
+                temp.y = j;
+                Q.push(temp);
+            }
+        }
+    }
+    temp.x = -1;
+    temp.y = -1;
+    Q.push(temp);
+
+    while (!Q.empty())
+    {
+
+        bool flag = false;
+
+        while (!isdelim(Q.front()))
+        {
+            temp = Q.front();
+ 
+            if (isvalid(temp.x+1, temp.y) && arr[temp.x+1][temp.y] == 1)
+            {
+                
+                if (!flag) ans++, flag = true;     
+                arr[temp.x+1][temp.y] = 2;
+                temp.x++;
+                Q.push(temp);
+ 
+                temp.x--; 
+            }
+            if (isvalid(temp.x-1, temp.y) && arr[temp.x-1][temp.y] == 1) {
+                if (!flag) ans++, flag = true;
+                arr[temp.x-1][temp.y] = 2;
+                temp.x--;
+                Q.push(temp); 
+                temp.x++;
+            }
+            if (isvalid(temp.x, temp.y+1) && arr[temp.x][temp.y+1] == 1) {
+                if (!flag) ans++, flag = true;
+                arr[temp.x][temp.y+1] = 2;
+                temp.y++;
+                Q.push(temp); 
+                temp.y--;
+            }
+            if (isvalid(temp.x, temp.y-1) && arr[temp.x][temp.y-1] == 1) {
+                if (!flag) ans++, flag = true;
+                arr[temp.x][temp.y-1] = 2;
+                temp.y--;
+                Q.push(temp); 
+            }
+             Q.pop();
+        }
+        Q.pop();
+        if (!Q.empty()) {
+            temp.x = -1;
+            temp.y = -1;
+            Q.push(temp);
+        }
+    }
+    return (checkall(arr))? -1: ans;
+}
+int a[101][101];
+int main()
+{
+	//freopen("input.txt","r",stdin);
+	//freopen("output.txt","w",stdout);
+	int t;
+	cin>>t;
+	while(t--)
+	{
+		//int x,y;
+		cin>>R>>C;
+		//int a[R][C];
+		for(int i=0;i<R;++i)
+			for(int j=0;j<C;++j)
+				cin>>a[i][j];
+		cout<<rotOranges(a)<<endl;
+	}
+	return 0;
+}
+
+-------------------Minimum swaps to sort-------------------
+
+
+int minSwaps(int A[], int N){
+    int n=N;
+	pair<int, int> arrPos[n];
+	for (int i = 0; i < n; i++)
+	{
+		arrPos[i].first = A[i];
+		arrPos[i].second = i;
+	}
+
+	sort(arrPos, arrPos + n);
+
+
+	vector<bool> vis(n, false);
+
+
+	int ans = 0;
+
+
+	for (int i = 0; i < n; i++)
+	{
+	
+		if (vis[i] || arrPos[i].second == i)
+			continue;
+
+		
+		int cycle_size = 0;
+		int j = i;
+		while (!vis[j])
+		{
+			vis[j] = 1;
+
+		
+			j = arrPos[j].second;
+			cycle_size++;
+		}
+
+	
+		ans += (cycle_size - 1);
+	}
+
+	
+	return ans;
+}
+
+-------------------Steps by knight----------------
+// specific cell in minimum moves by Knight
+#include <bits/stdc++.h>
+using namespace std;
+
+// structure for storing a cell's data
+struct cell
+{
+	int x, y;
+	int dis;
+	cell() {}
+	cell(int x, int y, int dis) : x(x), y(y), dis(dis) {}
+};
+
+// Utility method returns true if (x, y) lies inside Board
+bool isInside(int x, int y, int N)
+{
+	if (x >= 1 && x <= N && y >= 1 && y <= N)
+		return true;
+	return false;
+}
+
+// Method returns minimum step to reach target position
+int minStepToReachTarget(int knightPos[], int targetPos[],
+												int N)
+{
+	// x and y direction, where a knight can move
+	int dx[] = {-2, -1, 1, 2, -2, -1, 1, 2};
+	int dy[] = {-1, -2, -2, -1, 1, 2, 2, 1};
+
+	// queue for storing states of knight in board
+	queue<cell> q;
+
+	// push starting position of knight with 0 distance
+	q.push(cell(knightPos[0], knightPos[1], 0));
+
+	cell t;
+	int x, y;
+	bool visit[N + 1][N + 1];
+
+	// make all cell unvisited
+	for (int i = 1; i <= N; i++)
+		for (int j = 1; j <= N; j++)
+			visit[i][j] = false;
+
+	// visit starting state
+	visit[knightPos[0]][knightPos[1]] = true;
+
+	// loop untill we have one element in queue
+	while (!q.empty())
+	{
+		t = q.front();
+		q.pop();
+		visit[t.x][t.y] = true;
+
+		// if current cell is equal to target cell,
+		// return its distance
+		if (t.x == targetPos[0] && t.y == targetPos[1])
+			return t.dis;
+
+
+		// loop for all reahable states
+		for (int i = 0; i < 8; i++)
+		{
+			x = t.x + dx[i];
+			y = t.y + dy[i];
+
+			// If rechable state is not yet visited and
+			// inside board, push that state into queue
+			if (isInside(x, y, N) && !visit[x][y])
+				q.push(cell(x, y, t.dis + 1));
+
+		}
+	}
+}
+
+------------------Implemeting Dijkstra-----------------
+
+
+
+int minDistance(vector <int> &dist, bool sptSet[],int V)
+{
+   // Initialize min value
+   int min = INT_MAX, min_index;
+  
+   for (int v = 0; v < V; v++)
+     if (sptSet[v] == false && dist[v] <= min)
+         min = dist[v], min_index = v;
+  
+   return min_index;
+}
+  
+
+vector <int> dijkstra(vector<vector<int>> graph, int src, int V)
+{
+     vector <int> dist(V);
+     
+     bool sptSet[V];
+  
+     // Initialize all distances as INFINITE and stpSet[] as false
+     for (int i = 0; i < V; i++)
+        dist[i] = INT_MAX, sptSet[i] = false;
+  
+     // Distance of source vertex from itself is always 0
+     dist[src] = 0;
+  
+
+     for (int count = 0; count < V-1; count++)
+     {
+      
+       int u = minDistance(dist, sptSet,V);
+  
+    
+       sptSet[u] = true;
+  
+  
+       for (int v = 0; v < V; v++)
+  
+    
+         if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX 
+                                       && dist[u]+graph[u][v] < dist[v])
+            dist[v] = dist[u] + graph[u][v];
+     }
+  
+    return dist;
+}
+
+----------------------------------Minimum spanning tree----------------
+
+#include <bits/stdc++.h>
+using namespace std;
+int spanningTree(int V, int E, vector<vector<int>> &graph);
+// Driver code
+
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int V, E;
+        cin >> V >> E;
+        vector<vector<int> > graph(V, vector<int>(V, INT_MAX));
+
+        while (E--) {
+            int u, v, w;
+            cin >> u >> v >> w;
+            u--, v--;
+            graph[u][v] = w;
+            graph[v][u] = w;
+        }
+
+        cout << spanningTree(V, E, graph) << endl;
+    }
+    return 0;
+}
+// } Driver Code Ends
+
+
+// Function to construct and print MST for
+// a graph represented using adjacency
+// matrix representation, with V vertices.
+// graph[i][j] = weight if edge exits else INT_MAX
+// A utility function to find the vertex with
+// minimum key value, from the set of vertices
+// not yet included in MST
+int minKey(int key[], bool mstSet[], int V) {
+    // Initialize min value
+    int min = INT_MAX, min_index;
+
+    for (int v = 0; v < V; v++)
+        if (mstSet[v] == false && key[v] < min) min = key[v], min_index = v;
+
+    return min_index;
+}
+
+// A utility function to print the
+// constructed MST stored in parent[]
+int costofMST(int parent[], vector<vector<int>> &graph, int V) {
+    int cost = 0;
+    for (int i = 1; i < V; i++) cost += graph[i][parent[i]];
+    return cost;
+}
+
+// Function to construct and print MST for
+// a graph represented using adjacency
+// matrix representation, with V vertices.
+int spanningTree(int V, int E, vector<vector<int>> &graph) {
+    // Array to store constructed MST
+    int parent[V];
+
+    // Key values used to pick minimum weight edge in cut
+    int key[V];
+
+    // To represent set of vertices not yet included in MST
+    bool mstSet[V];
+
+    // Initialize all keys as INFINITE
+    for (int i = 0; i < V; i++) key[i] = INT_MAX, mstSet[i] = false;
+
+    // Always include first 1st vertex in MST.
+    // Make key 0 so that this vertex is picked as first vertex.
+    key[0] = 0;
+    parent[0] = -1; // First node is always root of MST
+
+    // The MST will have V vertices
+    for (int count = 0; count < V - 1; count++) {
+        // Pick the minimum key vertex from the
+        // set of vertices not yet included in MST
+        int u = minKey(key, mstSet, V);
+
+        // Add the picked vertex to the MST Set
+        mstSet[u] = true;
+
+        // Update key value and parent index of
+        // the adjacent vertices of the picked vertex.
+        // Consider only those vertices which are not
+        // yet included in MST
+        for (int v = 0; v < V; v++)
+
+            // graph[u][v] is non zero only for adjacent vertices of m
+            // mstSet[v] is false for vertices not yet included in MST
+            // Update the key only if graph[u][v] is smaller than key[v]
+            if (graph[u][v] && mstSet[v] == false && graph[u][v] < key[v])
+                parent[v] = u, key[v] = graph[u][v];
+    }
+
+    // print the constructed MST
+    return costofMST(parent, graph, V);
+}
+
+----------------------------Kosaraju's algorithm----
+
+#include<bits/stdc++.h>
+
+using namespace std;
+
+ // } Driver Code Ends
+
+
+/*  Function to find the number of strongly connected components
+*   using Kosaraju's algorithm
+*   V: number of vertices
+*   adj[]: array of vectors to represent graph
+*/
+void transpose(int V, vector<int> adj[], vector<int> transpose_adj[]) {
+    for (int u = 0; u < V; u++)
+        for (auto v : adj[u])
+            transpose_adj[v].push_back(u);
+}
+
+stack<int> s;
+
+int dfs(vector<int> adj[], bool *visited, int u) {
+    visited[u] = true;
+    for (auto v : adj[u]) {
+        if (visited[v] == 0)
+            dfs(adj, visited, v);
+    }
+}
+
+int fillorder(vector<int> adj[], bool *visited, int u) {
+    visited[u] = true;
+    for (auto v : adj[u])
+        if (visited[v] == 0)
+            fillorder(adj, visited, v);
+    s.push(u);
+}
+
+int kosaraju(int V, vector<int> adj[]) {
+    bool visited[V];
+    memset(visited, 0, sizeof(visited));
+    for (int i = 0; i < V; i++)
+        if (visited[i] == false)
+            fillorder(adj, visited, i);
+
+    vector<int> transpose_adj[V];
+    transpose(V, adj, transpose_adj);
+
+    for (int i = 0; i < V; i++)
+        visited[i] = false;
+
+    int ans = 0;
+    while (!s.empty()) {
+        int temp = s.top();
+        s.pop();
+
+        if (!visited[temp]) {
+            dfs(transpose_adj, visited, temp);
+            ans++;
+        }
+    }
+
+    return ans;
+}
+
+
+
+// { Driver Code Starts.
+
+int main() {
+    int t;
+    cin >> t;
+    while (t--) {
+        int a, b;
+        cin >> a >> b;
+        int m, n;
+        vector<int> adj[a];
+        for (int i = 0; i < b; i++) {
+            cin >> m >> n;
+            adj[m].push_back(n);
+        }
+        cout << kosaraju(a, adj) << endl;
+    }
+    return 0;
+}
+  // } Driver Code Ends
+
+
+
+----------Minimum cost path-----------
+#define MAX 150
+using namespace std;
+
+struct cell
+{
+    int x, y;
+    int distance;
+    cell(int x, int y, int distance) :
+        x(x), y(y), distance(distance) {}
+};
+
+bool operator<(const cell& a, const cell& b)
+{
+    if (a.distance == b.distance)
+    {
+        if (a.x != b.x)
+            return (a.x < b.x);
+        else
+            return (a.y < b.y);
+    }
+    return (a.distance < b.distance);
+}
+
+bool isInsideGrid(int i, int j, int row, int col)
+{
+    return (i >= 0 && i < col && j >= 0 && j < row);
+}
+
+int shortest(int grid[MAX][MAX], int row, int col)
+{
+    int dis[row][col];
+    for (int i = 0; i < row; i++)
+        for (int j = 0; j < col; j++)
+            dis[i][j] = INT_MAX;
+    int dx[] = {-1, 0, 1, 0};
+    int dy[] = {0, 1, 0, -1};
+    set<cell> st;
+    st.insert(cell(0, 0, 0));
+    dis[0][0] = grid[0][0];
+    while (!st.empty())
+    {
+        cell k = *st.begin();
+        st.erase(st.begin());
+        for (int i = 0; i < 4; i++)
+        {
+            int x = k.x + dx[i];
+            int y = k.y + dy[i];
+            if (!isInsideGrid(x, y, row, col))
+                continue;
+            if (dis[x][y] > dis[k.x][k.y] + grid[x][y])
+            {
+                if (dis[x][y] != INT_MAX)
+                    st.erase(st.find(cell(x, y, dis[x][y])));
+                dis[x][y] = dis[k.x][k.y] + grid[x][y];
+                st.insert(cell(x, y, dis[x][y]));
+            }
+        }
+    }
+    return dis[row - 1][col - 1];
+}
+
+int main()
+{
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        int n;
+        cin>>n;
+        int arr[150][150];
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++)
+                cin>>arr[i][j];
+        }
+        cout<<shortest(arr, n, n)<<endl;
+    }
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
